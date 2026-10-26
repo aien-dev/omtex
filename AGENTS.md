@@ -20,8 +20,8 @@ repository; where the two differ, this file wins here.
   source, or extend the library with a checked word and a refusal test (an accepted/refused pair).
 - `tools/zenodo-draft.sh` must never publish. Do not add a publish path.
 - omc limits seen here: error 12 means split the function (keep about 10 live names); a function
-  takes at most 6 parameters (error 9); `at` and `abstract` are reserved words (error 16); a global
-  cannot be passed as a call argument (error 19).
+  takes at most 6 parameters (error 9); the library is an `om2` unit, where OM-2 words such as `at`
+  are reserved (`fn f at ulong` is error 16 under `om2`, accepted without it).
 
 ## Commands
 

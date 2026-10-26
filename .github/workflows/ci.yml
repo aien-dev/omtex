@@ -1,0 +1,36 @@
+# CI for omtex: fetches the pinned omega-mv commit (tools/pin.sh), checks the committed omc
+# against the pinned sha256, and runs tests/run.sh on a GitHub-hosted arm64 runner (omc is an
+# AArch64 ELF). A second job writes an SPDX SBOM of the tree for auditors.
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    env:
+      OMTEX_NICE: ''
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - name: Pin record
+        run: sed -n '1,4p' tools/pin.sh
+      - name: Run the suite with the pinned omc
+        run: sh tests/run.sh
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          artifact-name: sbom-${{ github.sha }}.spdx.json

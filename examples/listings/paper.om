@@ -1,0 +1,121 @@
+note omtex feature tour: Omega listings checked by the pinned compiler, math, a table, a figure, citations.
+note Build: tools/build.sh examples/listings/paper.om   (the listing check runs as part of the build)
+text cls "article"
+text clso "11pt"
+text pfont "fontenc"
+text pfonto "T1"
+text pgeo "geometry"
+text pgeoo "margin=1in"
+text pams "amsmath"
+text pgfx "graphicx"
+text phyp "hyperref"
+text phypo "hidelinks"
+text ttl "Writing papers in Omega with omtex"
+text who "omtex examples"
+text when "October 2026"
+text abs "This paper is an Omega program. Every byte of its LaTeX was written by checked Omega code, every special character was escaped or refused, and every Omega listing below was compiled by the pinned seeded compiler while the paper was built."
+text s1 "Listings that must compile"
+text l1 "sec:listings"
+text p1 "An `omlisting` is compiled with the pinned `omc` when the paper is built with `check`. Listing[#lst:add3] must compile; the build fails otherwise."
+text c1 "Adding three"
+text k1 "lst:add3"
+text b1 "note add three to a number\nfn add3 x ulong to ulong\nret add x 3\nend\nfn main to int\nret int sub add3 4 7\nend\n"
+text p2 "A listing can also state that the compiler must *refuse* it, and with which error. Listing[#lst:dead] has a statement after `ret`, which is error 17."
+text c2 "Refused: a line after `ret` (error 17)"
+text k2 "lst:dead"
+text b2 "fn main to int\nret 0\nret 1\nend\n"
+text p3 "A fragment is shown but explicitly not compiled; the check reports it as NOT_CHECKED."
+text c3 "A fragment"
+text k3 "lst:frag"
+text b3 "i = add i 1\n"
+text p4 "Other languages use `codelang` and `listing`:"
+text sh "sh"
+text c4 "Building this paper"
+text k4 "lst:build"
+text b4 "tools/build.sh examples/listings/paper.om\n"
+text s2 "Mathematics"
+text l2 "sec:math"
+text l3 "sec:more"
+text p5 "Inline math such as $e^{i\\pi} + 1 = 0$ is checked: braces must balance, and $\\%$, $\\$$ and $\\#$ only appear escaped. Display math:"
+text m1 "\\int_0^1 x^2 \\, dx = \\frac{1}{3}"
+text k5 "eq:int"
+text p6 "Equation[#eq:int] was checked with Wolfram Language (`Integrate[x^2,{x,0,1}]` gives 1/3). An aligned pair:"
+text m2 "(a+b)^2 &= a^2 + 2ab + b^2 \\\\\n(a-b)^2 &= a^2 - 2ab + b^2"
+text s3 "Tables, figures and citations"
+text p7 "Table[#tab:esc] lists what prose characters become. Figure[#fig:ex] is a stock image. Information theory begins with Shannon[@shannon48]; the listing style follows the `listings` manual[@listings]."
+text tc "Prose characters and their LaTeX"
+text tk "tab:esc"
+text ts "ll"
+text h1 "Prose"
+text h2 "LaTeX"
+text r1a "`50% & 3_x #1 {a}`"
+text r1b "`50\\% \\& 3\\_x \\#1 \\{a\\}`"
+text r2a "`*word*` and `**word**`"
+text r2b "`\\emph{word}` and `\\textbf{word}`"
+text r3a "`[@key]` and `[#label]`"
+text r3b "`~\\cite{key}` and `~\\ref{label}`"
+text fp "example-image"
+text fc "A stock image from the `mwe` package."
+text fk "fig:ex"
+text e1 "shannon48"
+text e1t "C. E. Shannon. A mathematical theory of communication. *Bell System Technical Journal*, 27(3):379--423, 1948."
+text e2 "listings"
+text e2t "C. Heinz, B. Moses and J. Hoffmann. *The Listings Package*. CTAN, 2024."
+fn main to int
+docclass clso cls
+usepkgo pfonto pfont
+usepkgo pgeoo pgeo
+usepkg pams
+usepkg pgfx
+usepkgo phypo phyp
+omlang
+title ttl
+author who
+date when
+begindoc
+maketitle
+docabstract abs
+sectionl s1 l1
+para p1
+omlisting c1 k1 b1
+para p2
+omrefuse 17
+omlisting c2 k2 b2
+para p3
+omfragment c3 k3 b3
+para p4
+codelang sh
+listing c4 k4 b4
+sectionl s2 l2
+prose p5
+equationl k5 m1
+parbreak
+prose p6
+align m2
+sectionl s3 l3
+para p7
+table tc tk ts
+hline
+cell h1
+cell h2
+row
+hline
+cell r1a
+cell r1b
+row
+cell r2a
+cell r2b
+row
+cell r3a
+cell r3b
+row
+hline
+endtable
+figure fp fc fk
+bibbegin
+bibitem e1 e1t
+bibitem e2 e2t
+endlist
+enddoc
+ret 0
+end

@@ -1,0 +1,21 @@
+# newversion path on the reproduced Omega paper, then discarded (real zenodo.org)
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh newversion 23547811 build/omega-language/paper.pdf   (run 2026-10-26T17:53:19Z)
+file paper.pdf md5:aa6a3cf373be20ba6b92c991ef15cbea size 235914
+draft 23672569 state=unsubmitted submitted=false
+title Omega: A Programming Language Built for Verified Programs | publication_date 2026-10-26
+url https://zenodo.org/deposit/23672569
+zenodo-file paper.pdf md5:aa6a3cf373be20ba6b92c991ef15cbea
+rc=0
+local md5 aa6a3cf373be20ba6b92c991ef15cbea
+
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh discard 23672569   (run 2026-10-26T17:53:31Z)
+discarded draft 23672569
+rc=0
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh show 23672569
+zenodo-draft: GET https://zenodo.org/api/deposit/depositions/23672569 -> HTTP 404: {"status": 404, "message": "The persistent identifier does not exist."}
+rc=4
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh discard 23547811   (negative control: published record)
+zenodo-draft: 23547811 is published; not touching it
+rc=6
+$ curl -s https://zenodo.org/api/records/23547811 | jq -c '{id, status, version: .metadata.version, latest: .links.latest}'
+{"id":23547811,"status":"published","version":null,"latest":"https://zenodo.org/api/records/23547811/versions/latest"}

@@ -1,0 +1,133 @@
+note The Turing: A Unit of Verified Explanatory Gain (M. Drake Stapleton, v1.4, October 2026).
+note Reproduction, as an omtex paper, of aien-dev/aienos.com public/research/the-turing-brief/paper.tex.
+note Build: tools/build.sh examples/turing-brief/paper.om
+text cls "article"
+text clso "11pt,letterpaper"
+text pgeo "geometry"
+text pgeoo "margin=1in"
+text pams "amsmath,amssymb"
+text phyp "hyperref"
+text penum "enumitem"
+text pparskip "parskip"
+text ttl "The Turing: A Unit of Verified Explanatory Gain"
+text who "M. Drake Stapleton"
+text when "September 29, 2026"
+text p1 "*Status: Research hypothesis, v1.4, revised October 2, 2026. Originally published September 29, 2026.*"
+text p2 "*v1.4 revision note: reconciliation pass with the longer papers. Clarifies result status: TY-1+TY-2 is an internally replayed descriptive result; independent blinding is not established.*"
+text s3 "The problem"
+text p4 "Artificial intelligence has no unit for understanding gained."
+text p5 "We measure tokens per second. We measure watts. We measure benchmark accuracy. None of these measure how much a machine actually figured out, or what it cost in energy to figure it out."
+text p6 "A model can burn a megawatt to memorize answers. A model can sip power and discover structure that keeps predicting. Today's metrics cannot tell those two apart in any principled way. Accuracy per joule gets close, but accuracy is not understanding: a lookup table can be accurate."
+text p7 "We propose a unit for a measurable component of the missing quantity."
+text s8 "The proposal"
+text p9 "**The Turing (T)** is a unit of verified explanatory gain."
+text p10 "1 T = 1 bit of net held-out description-length improvement, relative to a declared baseline and a versioned measurement profile, after paying for the explanation itself."
+text p11 "In symbols, for baseline $B$, candidate explanation $M$, sealed held-out observations $D$, declared shared background $G$, and measurement profile $P$:"
+text m12 "T(M;B,D,G,P) = [L(B|G) + L(D|B,G)] - [L(M|G) + L(D|M,G)]"
+text p13 "the bits to describe each explanation plus the bits to describe the data given it, with the shared background declared rather than smuggled in."
+text p14 "Measurement takes two forms. $T_{\\mathrm{ideal}}$ is the complexity-adjusted held-out log-loss improvement: idealized, requiring no actual entropy coder. $T_{\\mathrm{real}}$ is the complexity-adjusted improvement in an actual reference-coded bitstream. An idealized result is not a realized compression; the bridge between the two is a claim to be tested, not assumed."
+text p15 "**Turing yield** is explanatory gain per unit energy: T/J (Turings per joule)."
+text s16 "Why the explanation must pay for itself"
+text p17 "A giant lookup table can predict perfectly on the data it stores. Whether that counts for anything depends on what the table had to pay to store it."
+text p18 "Example: a candidate saves 3,000,000 prediction bits but costs 8,000,000 bits to describe. Net: $-5{,}000{,}000$ Turings under profile $P$. It loses."
+text p19 "Another candidate saves 50,000 bits and costs 400 to describe. Net: $+49{,}600$ Turings under profile $P$. It discovered compact, reusable structure."
+text p20 "The second candidate demonstrated greater net held-out explanatory compression under this profile. The mechanism is the complexity charge: it penalizes stored information that does not earn its cost on held-out observations. Under the memorization bound of the formal paper (Lemma~2), pure memorization, explicitly charged, cannot outperform a cheaper equal default on held-out data. That is a deliberately weak claim, and it needs stating carefully: a table-based predictor can legitimately generalize. If a table's entries earn their description cost on observations the table never saw, the table scores well. What is penalized is storage that does not pay its way, not tables as such."
+text p21 "We propose that finding compact, reusable structure which keeps predicting is one measurable component of understanding."
+text s22 "The rules that keep it honest"
+text o23 "leftmargin=*"
+text i24 "Held-out data only. Never training data."
+text i25 "The baseline is declared up front, not chosen after the fact."
+text i26 "Scores are only comparable under the same measurement profile. No context-free leaderboards."
+text i27 "Physical energy accounting must conserve: you cannot attribute more joules than were measured."
+text i28 "Informational accounting must conserve: you cannot credit more Turings than were produced."
+text i29 "Every measurement is replayable from raw evidence by a third party."
+text s30 "What this is not"
+text p31 "It is not a replacement for the bit. Bits measure information; Turings measure verified explanatory gain, expressed in bits the way a darwin expresses evolutionary change as a rate (a factor of e per million years)."
+text p32 "It is not an intelligence score. A narrow trick can score Turings without being generally intelligent. The claim is deliberately narrow: under profile $P$, candidate $C$ reduced sealed held-out description length by a stated number of bits relative to baseline $B$."
+text s33 "Standing on giants, measuring something new"
+text p34 "The mathematics descends from Shannon's information theory, Solomonoff's algorithmic probability, Kolmogorov complexity, and Rissanen's Minimum Description Length principle (1978), whose two-part code $L(H) + L(D|H)$ is the direct ancestor of the formula above."
+text p35 "None of them named a unit for it. Description length has always been reported in plain bits, which is why a bit of memorization and a bit of genuine explanation look identical on paper."
+text p36 "The contribution is not the name. A name by itself measures nothing. The contribution is the measurement protocol: sealed held-out data, an explanation that pays for itself in the description-length accounting, and a declared profile that makes two reported numbers comparable. There is precedent for naming a unit of this kind: J. B. S. Haldane defined the **darwin** in 1949 as a unit of evolutionary change, named for Charles Darwin. We define the **Turing** as a unit of explanatory change."
+text p37 "Related recent work (for example, the Stanford Hazy Research paper \"Intelligence per Watt\" (arXiv:2511.07885), November 2025) measures task accuracy per unit power, and per unit energy in the same work. That is useful and different: accuracy is not explanatory gain, and a memorized answer is accurate. The Turing measures what the accuracy metrics cannot: whether the machine discovered structure that keeps predicting."
+text s38 "Terminology"
+text o39 "leftmargin=*"
+text i40 "**TURING**: the existing AIEN/Omega evidence and decision-record program."
+text i41 "**Turing (T)**: the unit proposed here."
+text i42 "**$T_{\\mathrm{ideal}}$**: complexity-adjusted held-out log-loss improvement; idealized, with no entropy coder required."
+text i43 "**$T_{\\mathrm{real}}$**: complexity-adjusted improvement in an actual reference-coded bitstream."
+text i44 "**Turing yield**: T/J, explanatory gain per joule."
+text s45 "The claim"
+text p46 "To our knowledge, this brief is the first publication of the Turing as a unit of verified explanatory gain, and of Turing yield (T/J) as a measure of the physical efficiency of verified explanatory gain. Published September 29, 2026, by the AIEN project."
+text p47 "We invite everyone to use it. If you report Turings, publish your baseline, your measurement profile, and your evidence, so anyone can recompute your number. That is the entire price of admission."
+text s48 "What comes next"
+text p49 "The first profile-bound idealized result is recorded: TY-1+TY-2, $+2{,}559{,}679.825$ $T_{\\mathrm{ideal}}$ under the measurement profile declared for that experiment. That number is an internally reported held-out result under the historical V0 profile, not a fully qualified measurement under the current protocol. The reference-coder bridge remains open: H1, the claim that $T_{\\mathrm{ideal}} \\approx T_{\\mathrm{real}}$ within the declared bound, is not yet verified. Results will be published as they verify, including failures."
+text r50 "\\bigskip"
+text p51 "*One measurable component of understanding is the discovery of compact structure that keeps predicting what happens next. Now it has a unit.*"
+fn main to int
+docclass clso cls
+usepkgo pgeoo pgeo
+usepkg pams
+usepkg phyp
+usepkg penum
+usepkg pparskip
+title ttl
+author who
+date when
+begindoc
+maketitle
+paran p1
+paran p2
+section s3
+para p4
+para p5
+para p6
+para p7
+section s8
+para p9
+para p10
+prose p11
+equation m12
+para p13
+para p14
+para p15
+section s16
+para p17
+para p18
+para p19
+para p20
+para p21
+section s22
+itemizeo o23
+item i24
+item i25
+item i26
+item i27
+item i28
+item i29
+endlist
+section s30
+para p31
+para p32
+section s33
+para p34
+para p35
+para p36
+para p37
+section s38
+itemizeo o39
+item i40
+item i41
+item i42
+item i43
+item i44
+endlist
+section s45
+para p46
+para p47
+section s48
+para p49
+rawtex r50
+paran p51
+enddoc
+ret 0
+end

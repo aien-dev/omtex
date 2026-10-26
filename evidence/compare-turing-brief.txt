@@ -1,0 +1,15 @@
+orig.tex sha256 4bada1db5740fb8e8bc767fd8838a15d25efab76154f7c86a006eda77667e413
+orig.pdf sha256 7689932e8ee60690277d3c933b47385a05a11cb69d0985daf3837d18987e3146 producer pdfTeX-1.40.29
+omtex.tex sha256 29f964fef0c635cf828296153b3b71410ca002ed4de6ee7827768f66bcd66a67
+omtex.pdf producer pdfTeX-1.40.25
+text: published PDF vs omtex PDF differing lines: 0
+pages: published 3 omtex 3
+pixels: original .tex built here vs omtex PDF, 100 dpi: 3/3 pages identical
+source word diff (count, side, token):
+      3 > \noindent
+      1 < \noindent\textit{v1.4
+      1 < \noindent\textit{Status:
+      1 < \noindent\textit{One
+      1 > \emph{v1.4
+      1 > \emph{Status:
+      1 > \emph{One

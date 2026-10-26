@@ -1,0 +1,12 @@
+# 2026-10-26 new standalone draft (real zenodo.org, unpublished)
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh new build/listings/paper.pdf examples/listings/zenodo.json   (run 2026-10-26T17:52Z)
+file paper.pdf md5:e75faa1e187df2130e692f89b97266c0 size 272255
+draft 23672558 state=unsubmitted submitted=false
+url https://zenodo.org/deposit/23672558
+
+$ atlas-vault run ZENODO_TOKEN -- sh tools/zenodo-draft.sh show 23672558   (run 2026-10-26T17:52:50Z)
+draft 23672558 state=unsubmitted submitted=false
+url https://zenodo.org/deposit/23672558
+zenodo-file paper.pdf md5:e75faa1e187df2130e692f89b97266c0
+rc=0
+local md5 e75faa1e187df2130e692f89b97266c0

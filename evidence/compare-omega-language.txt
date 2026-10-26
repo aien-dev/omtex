@@ -1,0 +1,19 @@
+orig.tex sha256 88e6aaf8389d816ffc3835d4470adbdcc87ab63823254f03b1528ed2c5e2ebf6
+orig.pdf sha256 8e2674d16c1c37c2670019eb21c2f398ec04588565f0ba78147c853a4d291820 producer pdfTeX-1.40.29
+omtex.tex sha256 d29ca10aa09b90a242edef2725896a063aaa05978e0cf4c552971dacdd7c0b20
+omtex.pdf producer pdfTeX-1.40.25
+text: published PDF vs omtex PDF differing lines: 0
+pages: published 9 omtex 9
+pixels: original .tex built here vs omtex PDF, 100 dpi: 9/9 pages identical
+source word diff (count, side, token):
+      5 > \textbar{}\textbar{}
+      5 < ||
+      1 > model}\label{sec:safety}
+      1 < model}
+      1 < \label{sec:semantics}
+      1 < \label{sec:safety}
+      1 < \label{sec:escape}
+      1 > first}\label{sec:semantics}
+      1 < first}
+      1 > boundary}\label{sec:escape}
+      1 < boundary}

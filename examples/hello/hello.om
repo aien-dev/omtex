@@ -1,0 +1,21 @@
+text o1 "11pt"
+text c1 "article"
+text fe "fontenc"
+text fo "T1"
+text t1 "Hello from *Omega*"
+text a1 "M. Drake Stapleton"
+text s1 "Intro"
+text l1 "sec:intro"
+text p1 "Costs 5% & more_stuff, see Section[#sec:intro]; \"quoted\" and `a_b{c}` and $x^2 + y_{i}$ and **bold *nested* bold**."
+fn main to int
+docclass o1 c1
+usepkgo fo fe
+title t1
+author a1
+begindoc
+maketitle
+sectionl s1 l1
+para p1
+enddoc
+ret 0
+end

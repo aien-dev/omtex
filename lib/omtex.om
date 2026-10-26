@@ -1,0 +1,1176 @@
+note omtex: an Omega -> LaTeX library. Concatenate it in front of a paper body (Omega has no imports, FR-3):
+note   cat lib/omtex.om paper.om | omc > paper.gen ; ./paper.gen > paper.tex ; ./paper.gen check OMC DIR
+note Reserved for the library: globals and texts whose names start with z, functions whose names start with tx.
+note Any input the library cannot render safely is refused: a message on stderr, then trap 11 (exit 111).
+om2
+global zob uchar 4194304
+global zst ulong 64
+global znb uchar 32
+global zpb uchar 4096
+global zomc uchar 2048
+global zdir uchar 2048
+global zlng uchar 64
+global zws uchar 8
+note zst cells: 0 out pos, 1 element, 2 mode (1 check), 3 phase (1 preamble, 2 body, 3 ended), 4 quote,
+note 5 emphasis depth, 6-13 emphasis stack, 14 list depth, 15-30 list stack, 31 table open, 32 cells in row,
+note 33 pass, 34 fail, 35 fragments, 36 omc path len, 37 dir len, 38 expected rc of next Omega listing,
+note 39 language len.
+text zmhead "omtex: refused element "
+text zmat " at byte "
+text zmnl "\n"
+text zrbs ": backslash in prose must be followed by one of \\ * ` $ [ ] \" ~"
+text zrctl ": control byte"
+text zrutf ": malformed or unsupported UTF-8"
+text zrquo ": unbalanced \" quote"
+text zremph ": unclosed or misnested * / ** emphasis"
+text zrdeep ": emphasis nested deeper than 8"
+text zrcode ": unclosed ` code span"
+text zrmath ": unclosed or empty $ math span"
+text zrbrace ": unbalanced braces in math"
+text zrmch ": byte not allowed in math (% $ # control non-ASCII, or & outside align)"
+text zrnl ": \\\\ outside align"
+text zrdeny ": control sequence on the deny list"
+text zrkey ": label or key must be non-empty [A-Za-z0-9:._+/-]"
+text zropt ": option text must be [A-Za-z0-9,=.:+/*- ]"
+text zrorder ": word used in the wrong document phase"
+text zrlist ": item, cell or row outside its list or table, or list nesting over 16"
+text zrclose ": enddoc with an open list or table"
+text zrlst ": listing body has \\end{lstlisting}, non-ASCII or a control byte"
+text zrfull ": output larger than 4 MiB"
+text zrusage ": usage: GEN > paper.tex | GEN check OMC DIR"
+text zrlang ": set codelang before listing"
+text zrexec ": cannot write or run a listing check"
+text zbsl "\\textbackslash{}"
+text ztil "\\textasciitilde{}"
+text zcir "\\textasciicircum{}"
+text zlt "\\textless{}"
+text zgt "\\textgreater{}"
+text zbar "\\textbar{}"
+text zdq "\\textquotedbl{}"
+text zgrv "\\textasciigrave{}"
+text zlbr "{[}"
+text zrbr "{]}"
+text ztt "\\texttt{"
+text zemph "\\emph{"
+text zbold "\\textbf{"
+text zoq "``"
+text zcq "''"
+text zcite "~\\cite{"
+text zref "~\\ref{"
+text zdcls "\\documentclass"
+text zusep "\\usepackage"
+text ztitle "\\title{"
+text zauth "\\author{"
+text zdate "\\date{"
+text zbegd "\\begin{document}\n"
+text zmkt "\\maketitle\n\n"
+text zabs1 "\\begin{abstract}\n"
+text zabs2 "\n\\end{abstract}\n\n"
+text zsec "\\section{"
+text zsecs "\\section*{"
+text zsub "\\subsection{"
+text zsubs "\\subsection*{"
+text zlabel "\\label{"
+text znoind "\\noindent "
+text zitem "\\item "
+text zbitz "\\begin{itemize}"
+text zeitz "\\end{itemize}\n\n"
+text zbenu "\\begin{enumerate}"
+text zeenu "\\end{enumerate}\n\n"
+text zbeq "\\begin{equation}\n"
+text zeeq "\n\\end{equation}\n"
+text zbdm "\\[\n"
+text zedm "\n\\]\n"
+text zbal "\\begin{align}\n"
+text zeal "\n\\end{align}\n"
+text zbls "\\begin{lstlisting}[language="
+text zcap ",caption={"
+text zlbl "},label="
+text zels "\\end{lstlisting}\n\n"
+text zendl "\\end{lstlisting}"
+text zomega "Omega"
+text zendd "\\end{document}\n"
+text zbib1 "\\begin{thebibliography}{99}\n"
+text zbib2 "\\end{thebibliography}\n\n"
+text zbibi "\\bibitem{"
+text zbsty "\\bibliographystyle{"
+text zbibf "}\n\\bibliography{"
+text ztab1 "\\begin{table}[htbp]\n\\centering\n\\caption{"
+text ztab2 "\\begin{tabular}{"
+text ztab3 "\\end{tabular}\n\\end{table}\n\n"
+text zrow " \\\\\n"
+text zamp " & "
+text zhline "\\hline\n"
+text zfig1 "\\begin{figure}[htbp]\n\\centering\n\\includegraphics[width=\\linewidth]{"
+text zfig2 "}\n\\caption{"
+text zfig3 "\\end{figure}\n\n"
+text zck "check"
+text zlst1 "LISTING "
+text zlst2 " want="
+text zlst3 " got="
+text zpass " PASS\n"
+text zfailw " FAIL\n"
+text zfragw " fragment NOT_CHECKED\n"
+text zsum1 "LISTINGS pass="
+text zsum2 " fail="
+text zsum3 " fragments="
+text zsfx ".om"
+text zsfxb ".bin"
+text zsfxe ".err"
+text zd1 "input"
+text zd2 "include"
+text zd3 "write"
+text zd4 "def"
+text zd5 "edef"
+text zd6 "gdef"
+text zd7 "xdef"
+text zd8 "let"
+text zd9 "catcode"
+text zd10 "immediate"
+text zd11 "openout"
+text zd12 "openin"
+text zd13 "csname"
+text zd14 "special"
+text zd15 "read"
+text zlang1 "\\usepackage{xcolor}\n\\usepackage{listings}\n\\lstdefinelanguage{Omega}{sensitive=true,morecomment=[l]{note},morestring=[b]\",\n"
+text zlang2 "morekeywords=[1]{fn,to,end,if,else,while,bound,for,ret,break,continue,trap,exit,void,global,text,const,struct,own,view,edit,true,false,free,om2,ir,export,layout,field,at,little,big,abstract,holds,seal,open,inline,unroll,fresh,part,out,ops,requires,ensures,invariant,result,old},\n"
+text zlang3 "morekeywords=[2]{bool,uchar,u8,ushort,u16,uint,u32,ulong,u64,byte,i8,short,i16,int,i32,long,i64,f32,f64},\n"
+text zlang4 "morekeywords=[3]{add,sub,mul,div,rem,and,or,xor,shl,shr,eq,ne,lt,le,gt,ge,neg,not,get,len,read,write,put,new,bitcast,fsqrt,fabs,fmin,fmax,sizeof,offsetof,rotr,rotl},\n"
+text zlang5 "morekeywords=[4]{fclose,fsync,fchmod,fseek,socknew,listen,accept,fork,dupfd,monons,fopen,unlink,makedir,getdnts,connect,bind,waitpid,fstat,recv,send,sleepns,argcnt,argread,waitio,execprog,renames,rmdir,killpid,pipefds,getpid,realns,sockname,cwd,readlnk,sockopt,random,envcnt,envread,chdir,ftrunc,stat,link,symlnk,chmod,faccess,getuid,geteuid,getgid,getegid,lstat,truncate,chown,fchdir,getppid,umask,fdsync,memfd,setsid,getpgid,setpgid,pread,pwrite,getsid,syncfs,shutdown,devctl,mapnew,mapdrop,mapread,mapwrite,devcall,uvmctl,mapaddr,mapget,mapset,maphold,mapbind}}\n"
+text zlang6 "\\lstset{basicstyle=\\ttfamily\\small,keywordstyle=[1]\\color{blue!65!black},keywordstyle=[2]\\color{teal!75!black},keywordstyle=[3]\\color{violet!80!black},keywordstyle=[4]\\color{orange!70!black},commentstyle=\\itshape\\color{black!55},stringstyle=\\color{red!60!black},columns=flexible,keepspaces=true,frame=single,breaklines=true,captionpos=b}\n"
+note ---- byte output: stderr/stdout writers and the document buffer ----
+fn txw fd int t view uchar * to void
+o = ulong 0
+while lt o len t bound 999999
+n = write fd t o sub len t o
+if le n 0
+trap 12
+end
+o = add o ulong n
+end
+end
+fn txnum v ulong to ulong
+i = ulong 31
+put znb i uchar add 48 rem v 10
+x = div v 10
+while gt x 0 bound 21
+i = sub i 1
+put znb i uchar add 48 rem x 10
+x = div x 10
+end
+ret i
+end
+fn txwn fd int v ulong to void
+i = txnum v
+n = write fd znb i sub 32 i
+if le n 0
+trap 12
+end
+end
+fn txfail why view uchar * pos ulong to void
+txw 2 zmhead
+txwn 2 get zst 1
+txw 2 why
+txw 2 zmat
+txwn 2 pos
+txw 2 zmnl
+trap 11
+end
+fn txb b uchar to void
+p = get zst 0
+if ge p 4194304
+txfail zrfull p
+end
+put zob p b
+put zst 0 add p 1
+end
+fn txs t view uchar * to void
+for i ulong len t
+txb get t i
+end
+end
+fn txrng t view uchar * s ulong e ulong to void
+i = s
+while lt i e bound 999999
+txb get t i
+i = add i 1
+end
+end
+fn txflush to void
+n = get zst 0
+o = ulong 0
+while lt o n bound 999999
+w = write 1 zob o sub n o
+if le w 0
+trap 12
+end
+o = add o ulong w
+end
+end
+note ---- element and phase bookkeeping ----
+fn txel ph ulong to void
+put zst 1 add get zst 1 1
+if ne get zst 3 ph
+txfail zrorder 0
+end
+end
+note ---- character classes ----
+fn txalpha c uchar to bool
+ret or and ge c 65 le c 90 and ge c 97 le c 122
+end
+fn txalnum c uchar to bool
+ret or txalpha c and ge c 48 le c 57
+end
+fn txmark c uchar to bool
+if or or or eq c 92 eq c 42 or eq c 96 eq c 36 or or eq c 91 eq c 93 eq c 34
+ret true
+end
+ret eq c 126
+end
+fn txplain c uchar to bool
+ret or or or eq c 35 eq c 36 or eq c 37 eq c 38 or or eq c 95 eq c 123 eq c 125
+end
+fn txkeyc c uchar comma bool to bool
+if txalnum c
+ret true
+end
+if or or eq c 58 eq c 46 or eq c 95 eq c 45
+ret true
+end
+if or eq c 43 eq c 47
+ret true
+end
+ret and comma eq c 44
+end
+fn txoptc c uchar to bool
+if txkeyc c true
+ret true
+end
+ret or or eq c 61 eq c 42 eq c 32
+end
+note ---- one ASCII byte as LaTeX text ----
+fn txch2 c uchar pos ulong to void
+if eq c 126
+txs ztil
+ret
+end
+if eq c 94
+txs zcir
+ret
+end
+if eq c 60
+txs zlt
+ret
+end
+if eq c 62
+txs zgt
+ret
+end
+if eq c 124
+txs zbar
+ret
+end
+if eq c 34
+txs zdq
+ret
+end
+if eq c 96
+txs zgrv
+ret
+end
+if eq c 91
+txs zlbr
+ret
+end
+if eq c 93
+txs zrbr
+ret
+end
+txb c
+end
+fn txch c uchar pos ulong to void
+if txplain c
+txb 92
+txb c
+ret
+end
+if eq c 92
+txs zbsl
+ret
+end
+if or eq c 9 eq c 10
+txb 32
+ret
+end
+if or lt c 32 ge c 127
+txfail zrctl pos
+end
+txch2 c pos
+end
+note ---- prose scanner ----
+fn txfind t view uchar * s ulong c uchar to ulong
+i = s
+while lt i len t bound 999999
+if eq get t i c
+ret i
+end
+i = add i 1
+end
+ret len t
+end
+fn txpesc t view uchar * i ulong to ulong
+j = add i 1
+if ge j len t
+txfail zrbs i
+ret j
+end
+c = get t j
+if not txmark c
+txfail zrbs i
+end
+txch c j
+ret add j 1
+end
+fn txemph k ulong pos ulong to void
+d = get zst 5
+if gt d 0
+if eq get zst add 5 d k
+txb 125
+put zst 5 sub d 1
+ret
+end
+end
+if ge d 8
+txfail zrdeep pos
+end
+if eq k 1
+txs zemph
+else
+txs zbold
+end
+put zst 5 add d 1
+put zst add 6 d k
+end
+fn txpstar t view uchar * i ulong to ulong
+k = ulong 1
+j = add i 1
+if lt j len t
+if eq get t j 42
+k = ulong 2
+j = add j 1
+end
+end
+txemph k i
+ret j
+end
+fn txpcode t view uchar * i ulong to ulong
+s = add i 1
+j = txfind t s 96
+if ge j len t
+txfail zrcode i
+end
+txs ztt
+k = s
+while lt k j bound 999999
+txch get t k k
+k = add k 1
+end
+txb 125
+ret add j 1
+end
+note the closing $ of inline math; a backslash pair such as \$ inside the math is skipped
+fn txfindm t view uchar * s ulong to ulong
+i = s
+while lt i len t bound 999999
+c = get t i
+if eq c 36
+ret i
+end
+if eq c 92
+i = add i 1
+end
+i = add i 1
+end
+ret len t
+end
+fn txpmath t view uchar * i ulong to ulong
+s = add i 1
+j = txfindm t s
+if or ge j len t eq j s
+txfail zrmath i
+end
+txmchk t s j false
+txb 36
+txrng t s j
+txb 36
+ret add j 1
+end
+fn txpbrk t view uchar * i ulong to ulong
+s = add i 2
+if ge s len t
+txch 91 i
+ret add i 1
+end
+c = get t add i 1
+if and ne c 64 ne c 35
+txch 91 i
+ret add i 1
+end
+j = txfind t s 93
+txkey t s j eq c 64
+if eq c 64
+txs zcite
+else
+txs zref
+end
+txrng t s j
+txb 125
+ret add j 1
+end
+fn txquote to void
+if eq get zst 4 0
+txs zoq
+put zst 4 1
+else
+txs zcq
+put zst 4 0
+end
+end
+fn txutf8 t view uchar * i ulong to ulong
+c = get t i
+n = ulong 0
+if and ge c 194 le c 223
+n = ulong 1
+end
+if and ge c 224 le c 239
+n = ulong 2
+end
+if and ge c 240 le c 244
+n = ulong 3
+end
+if or eq n 0 ge add i n len t
+txfail zrutf i
+end
+for k ulong n
+d = get t add add i 1 k
+if or lt d 128 gt d 191
+txfail zrutf i
+end
+end
+txrng t i add add i 1 n
+ret add add i 1 n
+end
+fn txpat t view uchar * i ulong to ulong
+c = get t i
+if eq c 92
+ret txpesc t i
+end
+if eq c 42
+ret txpstar t i
+end
+if eq c 96
+ret txpcode t i
+end
+if eq c 36
+ret txpmath t i
+end
+if eq c 91
+ret txpbrk t i
+end
+if eq c 34
+txquote
+ret add i 1
+end
+if eq c 126
+txb 126
+ret add i 1
+end
+if ge c 128
+ret txutf8 t i
+end
+txch c i
+ret add i 1
+end
+fn txprose t view uchar * to void
+put zst 4 0
+put zst 5 0
+i = ulong 0
+while lt i len t bound 999999
+i = txpat t i
+end
+if ne get zst 4 0
+txfail zrquo len t
+end
+if ne get zst 5 0
+txfail zremph len t
+end
+end
+note ---- keys, options and math ----
+fn txkey t view uchar * s ulong e ulong comma bool to void
+if ge s e
+txfail zrkey s
+end
+i = s
+while lt i e bound 999999
+if not txkeyc get t i comma
+txfail zrkey i
+end
+i = add i 1
+end
+end
+fn txopt t view uchar * to void
+for i ulong len t
+if not txoptc get t i
+txfail zropt i
+end
+end
+end
+fn txeqr t view uchar * s ulong e ulong w view uchar * to bool
+if ne sub e s len w
+ret false
+end
+for i ulong len w
+if ne get t add s i get w i
+ret false
+end
+end
+ret true
+end
+fn txdeny2 t view uchar * s ulong e ulong to bool
+if or or txeqr t s e zd9 txeqr t s e zd10 or txeqr t s e zd11 txeqr t s e zd12
+ret true
+end
+ret or or txeqr t s e zd13 txeqr t s e zd14 txeqr t s e zd15
+end
+fn txdeny t view uchar * s ulong e ulong to bool
+if or or txeqr t s e zd1 txeqr t s e zd2 or txeqr t s e zd3 txeqr t s e zd4
+ret true
+end
+if or or txeqr t s e zd5 txeqr t s e zd6 or txeqr t s e zd7 txeqr t s e zd8
+ret true
+end
+ret txdeny2 t s e
+end
+fn txmcmd t view uchar * i ulong e ulong amp bool to ulong
+j = add i 1
+if ge j e
+txfail zrmch i
+end
+c = get t j
+if txalpha c
+k = add j 1
+while lt k e bound 999999
+if not txalpha get t k
+break
+end
+k = add k 1
+end
+if txdeny t j k
+txfail zrdeny i
+end
+ret k
+end
+if and eq c 92 not amp
+txfail zrnl i
+end
+if or lt c 32 gt c 126
+txfail zrmch j
+end
+ret add j 1
+end
+fn txmbad c uchar amp bool to bool
+if or or lt c 32 gt c 126 or eq c 37 eq c 36
+ret true
+end
+ret or eq c 35 and eq c 38 not amp
+end
+fn txmchk t view uchar * s ulong e ulong amp bool to void
+d = long 0
+i = s
+while lt i e bound 999999
+c = get t i
+if eq c 92
+i = txmcmd t i e amp
+continue
+end
+if eq c 123
+d = add d 1
+end
+if eq c 125
+d = sub d 1
+if lt d 0
+txfail zrbrace i
+end
+end
+if and txmbad c amp ne c 10
+txfail zrmch i
+end
+i = add i 1
+end
+if ne d 0
+txfail zrbrace e
+end
+end
+fn txmath t view uchar * amp bool to void
+if eq len t 0
+txfail zrmath 0
+end
+txmchk t 0 len t amp
+txs t
+end
+fn txlchk t view uchar * to void
+for i ulong len t
+c = get t i
+if and or lt c 32 gt c 126 and ne c 10 ne c 9
+txfail zrlst i
+end
+if eq c 92
+if txeqr t i add i len zendl zendl
+txfail zrlst i
+end
+end
+end
+end
+fn txlabel l view uchar * to void
+txkey l 0 len l false
+txs zlabel
+txs l
+txb 125
+end
+note ---- arguments and phase 0 ----
+fn txinit to void
+n = argcnt
+if eq n 1
+ret
+end
+if ne n 4
+txfail zrusage 0
+end
+k = argread 1 zpb 0 64
+if ne k 5
+txfail zrusage 0
+end
+for i ulong 5
+if ne get zpb i get zck i
+txfail zrusage 0
+end
+end
+a = argread 2 zomc 0 2040
+b = argread 3 zdir 0 2040
+if or le a 0 le b 0
+txfail zrusage 0
+end
+put zst 36 ulong a
+put zst 37 ulong b
+put zst 2 1
+end
+note ---- public preamble words ----
+fn docclass opts view uchar * cls view uchar * to void
+txel 0
+txinit
+put zst 3 1
+txopt opts
+txkey cls 0 len cls false
+txs zdcls
+if gt len opts 0
+txb 91
+txs opts
+txb 93
+end
+txb 123
+txs cls
+txb 125
+txb 10
+end
+fn usepkgo opts view uchar * name view uchar * to void
+txel 1
+txopt opts
+txkey name 0 len name true
+txs zusep
+txb 91
+txs opts
+txb 93
+txb 123
+txs name
+txb 125
+txb 10
+end
+fn usepkg name view uchar * to void
+txel 1
+txkey name 0 len name true
+txs zusep
+txb 123
+txs name
+txb 125
+txb 10
+end
+fn preamble t view uchar * to void
+txel 1
+txmath t true
+txb 10
+end
+fn omlang to void
+txel 1
+txs zlang1
+txs zlang2
+txs zlang3
+txs zlang4
+txs zlang5
+txs zlang6
+end
+fn txwrap w view uchar * t view uchar * to void
+txs w
+txprose t
+txb 125
+txb 10
+end
+fn title t view uchar * to void
+txel 1
+txwrap ztitle t
+end
+fn author t view uchar * to void
+txel 1
+txwrap zauth t
+end
+fn date t view uchar * to void
+txel 1
+txwrap zdate t
+end
+fn begindoc to void
+txel 1
+txb 10
+txs zbegd
+put zst 3 2
+end
+note ---- public body words ----
+fn maketitle to void
+txel 2
+txs zmkt
+end
+fn docabstract t view uchar * to void
+txel 2
+txs zabs1
+txprose t
+txs zabs2
+end
+fn section t view uchar * to void
+txel 2
+txwrap zsec t
+txb 10
+end
+fn sectionl t view uchar * l view uchar * to void
+txel 2
+txs zsec
+txprose t
+txb 125
+txlabel l
+txb 10
+txb 10
+end
+fn sectionn t view uchar * to void
+txel 2
+txwrap zsecs t
+txb 10
+end
+fn subsection t view uchar * to void
+txel 2
+txwrap zsub t
+txb 10
+end
+fn subsectn t view uchar * to void
+txel 2
+txwrap zsubs t
+txb 10
+end
+fn para t view uchar * to void
+txel 2
+txprose t
+txb 10
+txb 10
+end
+note prose: text that does not end its paragraph (e.g. the lead-in to a display).
+fn prose t view uchar * to void
+txel 2
+txprose t
+txb 10
+end
+fn paran t view uchar * to void
+txel 2
+txs znoind
+txprose t
+txb 10
+txb 10
+end
+fn rawtex t view uchar * to void
+txel 2
+txmath t true
+txb 10
+txb 10
+end
+note Displays (equation, displaymath, align) end without a blank line, so the next para continues the
+note same paragraph, as in LaTeX. parbreak ends that paragraph instead.
+fn parbreak to void
+txel 2
+txb 10
+end
+fn txlpush k ulong to void
+d = get zst 14
+if ge d 16
+txfail zrlist 0
+end
+put zst 14 add d 1
+put zst add 15 d k
+end
+fn itemize to void
+txel 2
+txlpush 1
+txs zbitz
+txb 10
+end
+fn itemizeo opts view uchar * to void
+txel 2
+txopt opts
+txlpush 1
+txs zbitz
+txb 91
+txs opts
+txb 93
+txb 10
+end
+fn enumerate to void
+txel 2
+txlpush 2
+txs zbenu
+txb 10
+end
+fn item t view uchar * to void
+txel 2
+d = get zst 14
+if eq d 0
+txfail zrlist 0
+end
+if eq get zst add 14 d 3
+txfail zrlist 0
+end
+txs zitem
+txprose t
+txb 10
+end
+fn endlist to void
+txel 2
+d = get zst 14
+if eq d 0
+txfail zrlist 0
+end
+k = get zst add 14 d
+put zst 14 sub d 1
+if eq k 1
+txs zeitz
+end
+if eq k 2
+txs zeenu
+end
+if eq k 3
+txs zbib2
+end
+end
+fn equation m view uchar * to void
+txel 2
+txs zbeq
+txmath m false
+txs zeeq
+end
+fn equationl l view uchar * m view uchar * to void
+txel 2
+txs zbeq
+txlabel l
+txb 10
+txmath m false
+txs zeeq
+end
+fn displaymath m view uchar * to void
+txel 2
+txs zbdm
+txmath m false
+txs zedm
+end
+fn align m view uchar * to void
+txel 2
+txs zbal
+txmath m true
+txs zeal
+end
+fn figure path view uchar * cap view uchar * l view uchar * to void
+txel 2
+txkey path 0 len path false
+txs zfig1
+txs path
+txs zfig2
+txprose cap
+txb 125
+txlabel l
+txb 10
+txs zfig3
+end
+fn table cap view uchar * l view uchar * spec view uchar * to void
+txel 2
+if ne get zst 31 0
+txfail zrlist 0
+end
+txs ztab1
+txprose cap
+txb 125
+txlabel l
+txb 10
+txs ztab2
+txmath spec false
+txb 125
+txb 10
+put zst 31 1
+put zst 32 0
+end
+fn cell t view uchar * to void
+txel 2
+if eq get zst 31 0
+txfail zrlist 0
+end
+if gt get zst 32 0
+txs zamp
+end
+txprose t
+put zst 32 add get zst 32 1
+end
+fn row to void
+txel 2
+if or eq get zst 31 0 eq get zst 32 0
+txfail zrlist 0
+end
+txs zrow
+put zst 32 0
+end
+fn hline to void
+txel 2
+if or eq get zst 31 0 ne get zst 32 0
+txfail zrlist 0
+end
+txs zhline
+end
+fn endtable to void
+txel 2
+if or eq get zst 31 0 ne get zst 32 0
+txfail zrlist 0
+end
+txs ztab3
+put zst 31 0
+end
+fn bibbegin to void
+txel 2
+txlpush 3
+txs zbib1
+end
+fn bibitem k view uchar * t view uchar * to void
+txel 2
+d = get zst 14
+if or eq d 0 ne get zst add 14 d 3
+txfail zrlist 0
+end
+txkey k 0 len k false
+txs zbibi
+txs k
+txb 125
+txb 32
+txprose t
+txb 10
+end
+fn bibtex style view uchar * file view uchar * to void
+txel 2
+txkey style 0 len style false
+txkey file 0 len file false
+txs zbsty
+txs style
+txs zbibf
+txs file
+txb 125
+txb 10
+end
+note ---- listings ----
+fn codelang t view uchar * to void
+txel 2
+txkey t 0 len t false
+if gt len t 60
+txfail zrkey 60
+end
+for i ulong len t
+put zlng i get t i
+end
+put zst 39 len t
+end
+fn omrefuse rc ulong to void
+txel 2
+put zst 38 rc
+end
+fn txlhead cap view uchar * l view uchar * omega bool to void
+txkey l 0 len l false
+txs zbls
+if omega
+txs zomega
+else
+n = get zst 39
+if eq n 0
+txfail zrlang 0
+end
+for i ulong n
+txb get zlng i
+end
+end
+txs zcap
+txprose cap
+txs zlbl
+txs l
+txb 93
+txb 10
+end
+fn txlbody code view uchar * to void
+txlchk code
+txs code
+n = len code
+if or eq n 0 ne get code sub n 1 10
+txb 10
+end
+txs zels
+end
+fn listing cap view uchar * l view uchar * code view uchar * to void
+txel 2
+txlhead cap l false
+txlbody code
+end
+fn txpath l view uchar * sfx view uchar * to ulong
+n = get zst 37
+for i ulong n
+put zpb i get zdir i
+end
+put zpb n 47
+p = add n 1
+for i ulong len l
+put zpb add p i get l i
+end
+p = add p len l
+for i ulong len sfx
+put zpb add p i get sfx i
+end
+p = add p len sfx
+put zpb p 0
+ret p
+end
+fn txsave l view uchar * code view uchar * to void
+n = txpath l zsfx
+fd = fopen zpb 0 n 577 420
+if lt fd 0
+txfail zrexec 0
+end
+txw int fd code
+c = fclose int fd
+end
+fn txchild l view uchar * to void
+n = txpath l zsfx
+fd = fopen zpb 0 n 0 0
+if lt fd 0
+exit 97
+end
+r = dupfd int fd 0 0
+n = txpath l zsfxb
+fd = fopen zpb 0 n 577 493
+r = dupfd int fd 1 0
+n = txpath l zsfxe
+fd = fopen zpb 0 n 577 420
+r = dupfd int fd 2 0
+m = get zst 36
+put zpb 0 1
+put zpb 1 0
+put zpb 2 uchar and m 255
+put zpb 3 uchar shr m 8
+for i ulong m
+put zpb add 4 i get zomc i
+end
+r = execprog zpb 0 add 4 m
+exit 97
+end
+fn txrun l view uchar * to ulong
+pid = fork
+if lt pid 0
+txfail zrexec 0
+end
+if eq pid 0
+txchild l
+end
+r = waitpid int pid zws 0 4 0
+if lt r 0
+txfail zrexec 0
+end
+s = get zws 0
+if ne and s 127 0
+ret add 256 ulong and s 127
+end
+ret ulong get zws 1
+end
+fn txcheck l view uchar * code view uchar * to void
+w = get zst 38
+txsave l code
+g = txrun l
+txw 1 zlst1
+txw 1 l
+txw 1 zlst2
+txwn 1 w
+txw 1 zlst3
+txwn 1 g
+if eq g w
+txw 1 zpass
+put zst 33 add get zst 33 1
+else
+txw 1 zfailw
+put zst 34 add get zst 34 1
+end
+end
+fn omlisting cap view uchar * l view uchar * code view uchar * to void
+txel 2
+txlhead cap l true
+txlbody code
+if eq get zst 2 1
+txcheck l code
+end
+put zst 38 0
+end
+fn omfragment cap view uchar * l view uchar * code view uchar * to void
+txel 2
+txlhead cap l true
+txlbody code
+if eq get zst 2 1
+txw 1 zlst1
+txw 1 l
+txw 1 zfragw
+end
+put zst 35 add get zst 35 1
+end
+note ---- end of document ----
+fn enddoc to void
+txel 2
+if or ne get zst 14 0 ne get zst 31 0
+txfail zrclose 0
+end
+put zst 3 3
+txs zendd
+if eq get zst 2 0
+txflush
+ret
+end
+txw 1 zsum1
+txwn 1 get zst 33
+txw 1 zsum2
+txwn 1 get zst 34
+txw 1 zsum3
+txwn 1 get zst 35
+txw 1 zmnl
+if ne get zst 34 0
+exit 113
+end
+end

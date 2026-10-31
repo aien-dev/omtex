@@ -50,4 +50,6 @@ Only the default branch `main`; there is no release. Reports against older commi
 
 ## Status
 
-No hosted CI workflow is tracked at this revision. No certification, no bug bounty. See AUDIT_SCOPE.md for what to review and how to build and test it.
+Hosted CI (`.github/workflows/ci.yml`) runs `sh tests/run.sh` with the pinned compiler on every
+pull request and push to `main`. No certification, no bug bounty. See AUDIT_SCOPE.md for what to
+review and how to build and test it.

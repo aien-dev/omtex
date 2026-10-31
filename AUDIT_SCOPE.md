@@ -82,7 +82,9 @@ original paper's `.tex` and PDF. `tools/zenodo-draft.sh` needs a Zenodo token an
 
 ## Known limitations and NOT_RUN
 
-- No hosted CI at this revision.
+- Hosted CI (`.github/workflows/ci.yml`, added with this document) runs `sh tests/run.sh` with the
+  pinned `omc` on a GitHub-hosted arm64 runner and writes an SPDX SBOM. It does not run
+  `tools/compare.sh` or `tools/zenodo-draft.sh`.
 - Moving the pin requires rerunning `tests/run.sh`, both reproductions and the keyword parity test
   (AGENTS.md).
 - A typesetting engine in Omega is not started; pdfTeX stays a host tool (`DEPENDENCIES.md`).
